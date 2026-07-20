@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무드웰니스 통합 웰니스 교육 과정</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fcfbfa;
+            color: #333333;
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+
+        /* 고정 네비게이션 바 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(43, 35, 33, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar .logo {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14pt;
+            letter-spacing: 1px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .nav-links a {
+            color: #e0dcd8;
+            text-decoration: none;
+            font-size: 10.5pt;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #d4b29c;
+        }
+        
+        /* 우측 상시 플로팅 카카오톡 버튼 */
+        .floating-kakao {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            width: 140px;
+            height: 50px;
+            background-color: #FEE500;
+            color: #191919;
+            text-decoration: none;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 10.5pt;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .floating-kakao:hover {
+            transform: scale(1.05);
+            background-color: #fada0a;
+        }
+
+        .floating-kakao-icon {
+            margin-right: 6px;
+            font-size: 13pt;
+        }
+        
+        .section {
+            padding: 100px 30px 80px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            scroll-margin-top: 60px;
+        }
+        
+        /* 1. 히어로 섹션 */
+        #hero {
+            background-color: #2b2321;
+            color: #ffffff;
+            text-align: center;
+            padding-top: 140px;
+        }
+        
+        .hero-tag {
+            font-size: 12pt;
+            letter-spacing: 3px;
+            color: #d4b29c;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .hero-title {
+            font-size: 32pt;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 0 0 20px 0;
+            color: #ffffff;
+        }
+        
+        .hero-sub {
+            font-size: 15pt;
+            color: #e0dcd8;
+            margin-bottom: 40px;
+        }
+        
+        .hero-keywords {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+        
+        .keyword-badge {
+            background-color: rgba(212, 178, 156, 0.2);
+            border: 1px solid rgba(212, 178, 156, 0.4);
+            padding: 8px 25px;
+            border-radius: 25px;
+            font-size: 11pt;
+            color: #d4b29c;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background-color: #d4b29c;
+            color: #2b2321;
+            padding: 15px 40px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 12pt;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .cta-btn:hover {
+            background-color: #c39e87;
+        }
+        
+        /* 2. 가치관 섹션 */
+        #value {
+            background-color: #f5f1ed;
+            text-align: center;
+        }
+        
+        .section-label {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #8c7667;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .value-title {
+            font-size: 24pt;
+            color: #4a3b32;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            max-width: 900px;
+        }
+        
+        .value-text {
+            font-size: 13pt;
+            color: #5a4f46;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.9;
+        }
+        
+        /* 3. 철학 및 특징 섹션 */
+        #philosophy {
+            background-color: #faf7f5;
+        }
+        
+        .philo-card {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 60px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #eaded7;
+        }
+
+        .philo-title {
+            font-size: 24pt;
+            color: #7d2d3b;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .philo-text {
+            font-size: 12pt;
+            color: #555555;
+            line-height: 1.9;
+        }
+        
+        .why-grid {
+            display: flex;
+            gap: 25px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .why-col {
+            flex: 1;
+            background-color: #ffffff;
+            border: 1px solid #e8e3de;
+            border-radius: 8px;
+            padding: 35px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        
+        .col-num {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 10px;
+        }
+        
+        .col-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 15px;
+            border-left: 4px solid #7d2d3b;
+            padding-left: 10px;
+        }
+        
+        .col-desc {
+            font-size: 11pt;
+            color: #666666;
+            line-height: 1.7;
+        }
+        
+        /* 4. 커리큘럼 섹션 */
+        #curriculum {
+            background-color: #ffffff;
+        }
+
+        .curr-main-title {
+            font-size: 26pt;
+            color: #4a3b32;
+            text-align: center;
+            margin-bottom: 50px;
+            font-weight: bold;
+        }
+        
+        .curr-grid {
+            display: flex;
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .curr-col {
+            flex: 1;
+            background-color: #ffffff;
+            border: 1px solid #e8e3de;
+            border-top: 5px solid #7d2d3b;
+            border-radius: 4px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .curr-col.accent {
+            border-top-color: #8c7667;
+        }
+        
+        .curr-type {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        
+        .curr-subtype {
+            font-size: 11pt;
+            color: #888888;
+            margin-bottom: 30px;
+        }
+        
+        .curr-section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        .curr-col.accent .curr-section-title {
+            color: #8c7667;
+        }
+        
+        .curr-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+        
+        .curr-list li {
+            font-size: 11pt;
+            color: #555555;
+            margin-bottom: 10px;
+            padding-left: 22px;
+            position: relative;
+        }
+        
+        .curr-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #7d2d3b;
+            font-weight: bold;
+        }
+        
+        .curr-col.accent .curr-list li::before {
+            color: #8c7667;
+        }
+        
+        .curr-detail-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .curr-detail-list li {
+            font-size: 10.5pt;
+            color: #666666;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .curr-detail-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ccc;
+        }
+
+        /* 새로 추가된 내부 버튼 스타일 */
+        .inner-link-btn {
+            margin-top: auto;
+            background-color: #7d2d3b;
+            color: #ffffff;
+            text-align: center;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 11pt;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .inner-link-btn:hover {
+            background-color: #63232e;
+        }
+        
+        /* 5. 추천 대상 섹션 */
+        #target {
+            background-color: #fcfbfa;
+        }
+        
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .target-inner {
+            background-color: #ffffff;
+            border: 1px solid #eeded7;
+            border-radius: 8px;
+            padding: 35px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+        }
+        
+        .target-num {
+            font-size: 13pt;
+            color: #8c7667;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .target-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 20px;
+        }
+        
+        .target-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .target-list li {
+            font-size: 10.5pt;
+            color: #555555;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        /* 6. 푸터 섹션 */
+        .footer {
+            background-color: #7d2d3b;
+            color: #ffffff;
+            padding: 60px 30px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-cta {
+            font-size: 20pt;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .footer-sub {
+            font-size: 13pt;
+            color: #e0c5c9;
+            margin-bottom: 35px;
+        }
+        
+        .footer-btn {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #7d2d3b;
+            padding: 15px 45px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 12pt;
+            transition: background-color 0.3s;
+        }
+
+        .footer-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .footer-info {
+            margin-top: 50px;
+            font-size: 9.5pt;
+            color: #c9a0a6;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 30px;
+            line-height: 1.8;
+        }
+
+        /* 모달(Modal) 팝업 레이아웃 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #fcfbfa;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 40px 30px;
+            position: relative;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20pt;
+            background: none;
+            border: none;
+            color: #555555;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-header-tag {
+            font-size: 10.5pt;
+            color: #8c7667;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .modal-title {
+            font-size: 22pt;
+            color: #7d2d3b;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        .modal-subtitle {
+            font-size: 13pt;
+            color: #333333;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eeded7;
+            padding-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .modal-section {
+            margin-bottom: 30px;
+        }
+
+        .modal-section-title {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #4a3b32;
+            margin-bottom: 12px;
+            border-left: 4px solid #7d2d3b;
+            padding-left: 10px;
+        }
+
+        .modal-intro-text {
+            font-size: 11pt;
+            color: #555555;
+            line-height: 1.8;
+            background-color: #f5f1ed;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .modal-features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .modal-feat-box {
+            background: #ffffff;
+            border: 1px solid #e8e3de;
+            padding: 20px 15px;
+            border-radius: 6px;
+        }
+
+        .modal-feat-num {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 5px;
+        }
+
+        .modal-feat-title {
+            font-size: 11.5pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 8px;
+        }
+
+        .modal-feat-desc {
+            font-size: 9.5pt;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .modal-step-box {
+            background: #ffffff;
+            border: 1px solid #eaded7;
+            padding: 25px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .modal-step-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #5a4f46;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .modal-step-box:last-child .modal-step-title {
+            background-color: #443a33;
+        }
+
+        .modal-step-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .modal-step-list li {
+            font-size: 10.5pt;
+            color: #444444;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .why-grid, .curr-grid, .target-grid, .modal-features-grid {
+                flex-direction: column;
+                grid-template-columns: 1fr;
+            }
+            .navbar .nav-links {
+                display: none;
+            }
+            .hero-title {
+                font-size: 22pt;
+            }
+            .floating-kakao {
+                right: 15px;
+                bottom: 15px;
+                width: 120px;
+                height: 45px;
+                font-size: 9.5pt;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 고정 메뉴바 -->
+    <nav class="navbar">
+        <div class="logo">MOOD WELLNESS</div>
+        <div class="nav-links">
+            <a href="#value">가치관</a>
+            <a href="#philosophy">교육특징</a>
+            <a href="#curriculum">커리큘럼</a>
+            <a href="#target">추천대상</a>
+        </div>
+    </nav>
+
+    <!-- 상시 따라다니는 카카오톡 문의 플로팅 버튼 -->
+    <a href="http://pf.kakao.com/_ujjxlX/chat" target="_blank" class="floating-kakao">
+        <span class="floating-kakao-icon">💬</span>카톡 문의하기
+    </a>
+
+    <!-- 1. 히어로 섹션 -->
+    <section id="hero" class="section">
+        <div class="hero-tag">MOOD WELLNESS</div>
+        <h1 class="hero-title">무드웰니스 통합 웰니스 교육</h1>
+        <div class="hero-sub">움직임의 정교함에 치유의 깊이를 더하다</div>
+        <div class="hero-keywords">
+            <span class="keyword-badge">Movement</span>
+            <span class="keyword-badge">Therapy</span>
+            <span class="keyword-badge">Branding</span>
+        </div>
+        <a href="#curriculum" class="cta-btn">교육 커리큘럼 보러가기</a>
+    </section>
+
+    <!-- 2. 가치관 섹션 -->
+    <section id="value" class="section">
+        <div class="section-label">Our Value</div>
+        <h2 class="value-title">우리는 단순히 흘러가는 동작을 알려주는 강사를 넘어,<br>고객의 일상에 치유가 되는 무드를 선물하는 전문가를 양성합니다.</h2>
+        <p class="value-text">
+            몸의 정렬을 바로잡는 정교한 움직임, 그리고 마음의 이완을 이끌어내는 치유의 손길.<br>
+            무드웰니스가 지향하는 교육은 테크닉의 반복이 아닌 원리 이해와 공감을 바탕으로 합니다.<br>
+            현장에서 독보적인 가치를 증명할 수 있는 웰니스 파트너로 성장해보세요.
+        </p>
+    </section>
+
+    <!-- 3. 철학 및 특징 섹션 -->
+    <section id="philosophy" class="section">
+        <div class="section-label">Key Message</div>
+        <div class="philo-card">
+            <h2 class="philo-title">3% 강사의 가치는 확신에서 결정됩니다.</h2>
+            <p class="philo-text">
+                고객의 불편함을 예리하게 읽고, 가벼운 터치 한 번으로도 신체 정렬의 변화를 만들어내는 힘.<br>
+                단순한 자격증 취득이 아닙니다. 현장에서 바로 통하는 <strong>‘진짜 실력’</strong>을 만드는 과정입니다.
+            </p>
+        </div>
+
+        <div class="section-label">Features</div>
+        <h2 class="curr-main-title" style="margin-bottom: 40px;">왜 우리의 교육이 특별할까요?</h2>
+        <div class="why-grid">
+            <div class="why-col">
+                <div class="col-num">01</div>
+                <h3 class="col-title">통합 웰니스 커리큘럼</h3>
+                <p class="col-desc">운동과 회복이 분리된 기존 시스템의 한계를 극복하기 위해, 각 분야 전문가들의 노하우를집약해 완성했습니다. 필라테스, 바레, 테라피를 넘나드는 올인원 과정을 경험하세요.</p>
+            </div>
+            <div class="why-col">
+                <div class="col-num">02</div>
+                <h3 class="col-title">실전력과 브랜딩</h3>
+                <p class="col-desc">단순 자격증 취득을 넘어 체형분석, 실전 티칭 시퀀스, 그리고 강사 개인의 퍼스널 브랜딩과 상담 스킬까지 한 번에 마스터하여 시장 경쟁력을 극대화합니다.</p>
+            </div>
+            <div class="why-col">
+                <div class="col-num">03</div>
+                <h3 class="col-title">탄탄한 보수교육</h3>
+                <p class="col-desc">수료 후 끝나는 교육이 아닙니다. 끊임없이 발전하고 깊이를 더할 수 있도록 지속적이고 체계적인 보수교육 및 테마별 워크숍 시스템을 끊임없이 지원합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. 커리큘럼 섹션 -->
+    <section id="curriculum" class="section">
+        <div class="section-label">Curriculum</div>
+        <h2 class="curr-main-title">무드웰니스만의 독보적인 핵심 커리큘럼</h2>
+        
+        <div class="curr-grid">
+            <!-- 코스 1 -->
+            <div class="curr-col">
+                <div class="curr-type">Control & Dynamic</div>
+                <div class="curr-subtype">필라테스 · 바레 · 댄스 피트니스</div>
+                
+                <h4 class="curr-section-title">핵심 교육 시스템</h4>
+                <ul class="curr-list">
+                    <li>해부학과 학술적 기반의 커리큘럼</li>
+                    <li>탄탄한 이론에 기반한 실전 연습</li>
+                    <li>소규모 진행을 통한 디테일한 피드백</li>
+                </ul>
+                
+                <h4 class="curr-section-title">주요 학습 내용</h4>
+                <ul class="curr-detail-list" style="margin-bottom: 30px;">
+                    <li>기능해부학 및 체형 분석 이론 기초/심화</li>
+                    <li>매트 및 기구 필라테스 표준 정렬 교수법</li>
+                    <li>바레(Barre) & 댄스핏 타겟 머슬 활성화 시퀀스</li>
+                    <li>다양한 소도구(요가블록, 토닝볼 등) 활용법</li>
+                </ul>
+
+                <!-- 요청하신 내부 연동 버튼 활성화 -->
+                <button class="inner-link-btn" onclick="openModal()">다이나믹무브먼트전문가과정 (바레+댄스핏)</button>
+            </div>
+            
+            <!-- 코스 2 -->
+            <div class="curr-col accent">
+                <div class="curr-type">Manual & Recovery</div>
+                <div class="curr-subtype">테라피 & 리커버리</div>
+                
+                <h4 class="curr-section-title">핵심 교육 시스템</h4>
+                <ul class="curr-list">
+                    <li>예술적 무브먼트로 완성되는 테크닉</li>
+                    <li>맞춤형 Needs 기반 시퀀스 메이킹</li>
+                    <li>영상 피드백을 통한 밀착 트레이닝</li>
+                </ul>
+                
+                <h4 class="curr-section-title">주요 학습 내용</h4>
+                <ul class="curr-detail-list">
+                    <li>리커버리 테라피 매뉴얼 베이직 프로토콜</li>
+                    <li>수동적/능동적 스트레칭 및 관절 가동 테크닉</li>
+                    <li>통증 케어 릴리스 및 맞춤 힐링 시퀀스 설계</li>
+                    <li>실전 영상 분석을 통한 섬세한 핸즈온 교정</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 추천 대상 섹션 -->
+    <section id="target" class="section">
+        <div class="section-label">Target Audience</div>
+        <h2 class="curr-main-title">이런 분들에게 추천합니다</h2>
+        
+        <div class="target-grid">
+            <div class="target-inner">
+                <div class="target-num">01</div>
+                <h3 class="target-title">확실한 전문성을 갖추고 싶은 분</h3>
+                <ul class="target-list">
+                    <li>운동지도/테라피 자격증은 있으나 자신감이 부족한 분</li>
+                    <li>이론적 뒷받침 없이 일하고 있다고 느끼는 분</li>
+                    <li>확실한 무기가 되는 전문 자격이 필요한 예비 강사</li>
+                </ul>
+            </div>
+            <div class="target-inner">
+                <div class="target-num">02</div>
+                <h3 class="target-title">차별화된 통합 커리큘럼을 배울 분</h3>
+                <ul class="target-list">
+                    <li>필라테스, 바레, 테라피를 융합한 수업에 관심 있는 분</li>
+                    <li>트렌디하고 신선한 시퀀스 프로그램이 필요한 분</li>
+                    <li>매주 반복되는 지루한 루틴에서 벗어나고 싶은 분</li>
+                </ul>
+            </div>
+            <div class="target-inner">
+                <div class="target-num">03</div>
+                <h3 class="target-title">진짜 실력을 높여 성장하고 싶은 분</h3>
+                <ul class="target-list">
+                    <li>자격증 취득 후 실제 현장 적용 및 수업 전개가 막막한 분</li>
+                    <li>해부학 지식을 회원 소통에 제대로 녹여내지 못하는 분</li>
+                    <li>나만의 색깔로 대체 불가능한 경쟁력을 원하는 분</li>
+                </ul>
+            </div>
+            <div class="target-inner">
+                <div class="target-num">04</div>
+                <h3 class="target-title">지속적인 성장을 꿈꾸는 분</h3>
+                <ul class="target-list">
+                    <li>기존 현장에서 커리어 성장의 한계를 느끼시는 분</li>
+                    <li>개인 스튜디오 및 숍 독립, 창업을 준비하시는 분</li>
+                    <li>꾸준히 배우고 깊어지는 평생 전문가가 되고 싶은 분</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. 푸터 섹션 -->
+    <footer class="footer">
+        <div class="footer-cta">당신의 티칭과 손길이 하나의 예술이 되는 순간</div>
+        <div class="footer-sub">그 시작을 무드웰니스와 함께 하세요.</div>
+        <a href="#hero" class="footer-btn">맨 위로 이동하기</a>
+        <div class="footer-info">
+            협회명: 무드웰니스 (Mood Wellness) | 대표자명: 정소영<br>
+            주소: 서울특별시 테헤란로 13길 65 | 문의전화: 010-5834-2101<br>
+            Copyright © 2026 Mood Wellness. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- 세부 커리큘럼 모달 팝업 구조 레이어 -->
+    <div id="currModal" class="modal-overlay" onclick="closeModalOutside(event)">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+            <div class="modal-header-tag">국내 바레 논문 저자 직강</div>
+            <h2 class="modal-title">다이나믹 무브먼트 전문가 과정</h2>
+            <div class="modal-subtitle">바레와 댄스피트니스의 완벽한 융합</div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">과정 소개</div>
+                <div class="modal-intro-text">
+                    지루한 반복 운동은 이제 그만! 필라테스의 정교함에 바레와 댄스피트니스의 폭발적인 에너지를 더해, 수업의 몰입도를 극대화하는 가장 트렌디한 무브먼트 전문가를 양성하는 과정입니다.
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">왜 무드웰니스 다이나믹 과정일까요?</div>
+                <div class="modal-features-grid">
+                    <div class="modal-feat-box">
+                        <div class="modal-feat-num">01</div>
+                        <div class="modal-feat-title">국내 유일의 전문성</div>
+                        <div class="modal-feat-desc">바레 관련 논문 저자가 직접 증명한 철저한 학술적 기반의 고품격 커리큘럼을 제공합니다.</div>
+                    </div>
+                    <div class="modal-feat-box">
+                        <div class="modal-feat-num">02</div>
+                        <div class="modal-feat-title">현장 밀착 실전형</div>
+                        <div class="modal-feat-desc">오픈 즉시 대기 회원이 속출하는 검증된 프리미엄 시퀀스를 현장에 바로 완벽 배포합니다.</div>
+                    </div>
+                    <div class="modal-feat-box">
+                        <div class="modal-feat-num">03</div>
+                        <div class="modal-feat-title">사운드 브랜딩</div>
+                        <div class="modal-feat-desc">일반 루틴을 넘어 회원을 완벽하게 매료시키는 독보적이고 감각적인 플레이리스트를 제공합니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-section-title">주니어에서 마스터까지 완벽 로드맵</div>
+                
+                <div class="modal-step-box">
+                    <div class="modal-step-title">STEP 1. 주니어 과정 (탄탄한 기본기 & 실전 체화)</div>
+                    <ul class="modal-step-list">
+                        <li>바레의 역사·원리 분석 및 리듬 공식 메커니즘 분석</li>
+                        <li>신체부위별 타겟(Target Muscle) 이론 학습 및 밀착 실전 실기</li>
+                        <li>티칭 현장에 바로 적용 가능한 실전 시퀀스 집중 분석</li>
+                    </ul>
+                </div>
+
+                <div class="modal-step-box">
+                    <div class="modal-step-title">STEP 2. 마스터 과정 (소도구 정복 & 하이엔드 창작)</div>
+                    <ul class="modal-step-list">
+                        <li>다양한 소도구 심화 분석 및 고난도 결합 시퀀스 구성 프로토콜</li>
+                        <li>마스터 지도자의 1:1 디테일한 피드백 및 자세 교정</li>
+                        <li>독립적인 맞춤 수업 설계 기법 및 효율적인 티칭 방법 마스터</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달 제어 자바스크립트 -->
+    <script>
+        function openModal() {
+            document.getElementById('currModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // 뒤 브라우저 스크롤 방지
+        }
+
+        function closeModal() {
+            document.getElementById('currModal').style.display = 'none';
+            document.body.style.overflow = 'auto'; // 스크롤 복구
+        }
+
+        function closeModalOutside(event) {
+            const modal = document.getElementById('currModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
