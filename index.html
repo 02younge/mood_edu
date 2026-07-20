@@ -370,7 +370,6 @@
             color: #ccc;
         }
 
-        /* 새로 추가된 내부 버튼 스타일 */
         .inner-link-btn {
             margin-top: auto;
             background-color: #7d2d3b;
@@ -605,6 +604,45 @@
             line-height: 1.6;
         }
 
+        /* 모달 팝업 내부의 교육 혜택 전용 그리드 레이아웃 */
+        .modal-benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .modal-benefit-box {
+            background-color: #f5f1ed;
+            border: 1px solid #e8e3de;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-benefit-icon {
+            font-size: 18pt;
+            background-color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #7d2d3b;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .modal-benefit-text {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #4a3b32;
+            line-height: 1.4;
+        }
+
         .modal-step-box {
             background: #ffffff;
             border: 1px solid #eaded7;
@@ -641,7 +679,7 @@
         }
 
         @media (max-width: 768px) {
-            .why-grid, .curr-grid, .target-grid, .modal-features-grid {
+            .why-grid, .curr-grid, .target-grid, .modal-features-grid, .modal-benefits-grid {
                 flex-direction: column;
                 grid-template-columns: 1fr;
             }
@@ -720,7 +758,7 @@
             <div class="why-col">
                 <div class="col-num">01</div>
                 <h3 class="col-title">통합 웰니스 커리큘럼</h3>
-                <p class="col-desc">운동과 회복이 분리된 기존 시스템의 한계를 극복하기 위해, 각 분야 전문가들의 노하우를집약해 완성했습니다. 필라테스, 바레, 테라피를 넘나드는 올인원 과정을 경험하세요.</p>
+                <p class="col-desc">운동과 회복이 분리된 기존 시스템의 한계를 극복하기 위해, 각 분야 전문가들의 노하우를 집약해 완성했습니다. 필라테스, 바레, 테라피를 넘나드는 올인원 과정을 경험하세요.</p>
             </div>
             <div class="why-col">
                 <div class="col-num">02</div>
@@ -761,7 +799,6 @@
                     <li>다양한 소도구(요가블록, 토닝볼 등) 활용법</li>
                 </ul>
 
-                <!-- 요청하신 내부 연동 버튼 활성화 -->
                 <button class="inner-link-btn" onclick="openModal()">다이나믹무브먼트전문가과정 (바레+댄스핏)</button>
             </div>
             
@@ -877,6 +914,29 @@
                         <div class="modal-feat-num">03</div>
                         <div class="modal-feat-title">사운드 브랜딩</div>
                         <div class="modal-feat-desc">일반 루틴을 넘어 회원을 완벽하게 매료시키는 독보적이고 감각적인 플레이리스트를 제공합니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 요청 사항: [교육 혜택] 컴포넌트를 이 팝업 페이지 내부 속으로 이동 배치 -->
+            <div class="modal-section">
+                <div class="modal-section-title">무드웰니스만의 독보적인 교육 혜택</div>
+                <div class="modal-benefits-grid">
+                    <div class="modal-benefit-box">
+                        <div class="modal-benefit-icon">📋</div>
+                        <div class="modal-benefit-text">현장직결 시퀀스, 플레이리스트 제공</div>
+                    </div>
+                    <div class="modal-benefit-box">
+                        <div class="modal-benefit-icon">✍️</div>
+                        <div class="modal-benefit-text">탄탄한 보수교육 및 워크숍 제공</div>
+                    </div>
+                    <div class="modal-benefit-box">
+                        <div class="modal-benefit-icon">🎫</div>
+                        <div class="modal-benefit-text">우수교육생 마스터반 수강 할인권 제공</div>
+                    </div>
+                    <div class="modal-benefit-box">
+                        <div class="modal-benefit-icon">📸</div>
+                        <div class="modal-benefit-text">프리미엄 프로필 촬영권 제공</div>
                     </div>
                 </div>
             </div>
