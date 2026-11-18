@@ -89,10 +89,21 @@
  function fillOptions(select, options){
    for(const [value,title] of Object.entries(options)){const option=node('option',title);option.value=value;select.append(option);}
  }
+ function photosOf(record){
+   return record.photo_paths?.length?record.photo_paths:record.photo_path?[record.photo_path]:[];
+ }
  async function photoFor(record,box){
-   if(!record.photo_path)return;
-   const {data}=await db.storage.from(photoBucket).createSignedUrl(record.photo_path,3600);
-   if(data?.signedUrl){const img=node('img');img.src=data.signedUrl;img.alt=record.title;img.loading='lazy';box.prepend(img);}
+   const paths=photosOf(record);
+   if(!paths.length)return;
+   const {data}=await db.storage.from(photoBucket).createSignedUrls(paths,3600);
+   const gallery=node('div');gallery.className='edu-photo-gallery';
+   for(const [index,item] of (data||[]).entries()){
+     if(!item.signedUrl)continue;
+     const link=node('a');link.href=item.signedUrl;link.target='_blank';link.rel='noopener noreferrer';
+     const img=node('img');img.src=item.signedUrl;img.alt=record.title+' 사진 '+(index+1);img.loading='lazy';
+     link.append(img);gallery.append(link);
+   }
+   if(gallery.childElementCount){if(record.kind==='faculty')box.prepend(gallery);else box.append(gallery);}
  }
  function paragraphBody(body,container){
    for(const block of body.split(/\n\s*\n/)){
@@ -104,7 +115,7 @@
  }
  async function publicContent(){
    const faculty=get('teacher-list'),course=get('course-content'),kind=faculty?'faculty':course.dataset.kind;
-   const {data,error}=await db.from(contentTable).select('title,subtitle,body,photo_path').eq('published',true).eq('kind',kind).order('title');
+   const {data,error}=await db.from(contentTable).select('kind,title,subtitle,body,photo_path,photo_paths').eq('published',true).eq('kind',kind).order('title');
    if(faculty){
      get('teacher-status').textContent=error?'교육진 프로필을 불러오지 못했습니다.':data.length?'':'공개된 교육진 프로필을 준비 중입니다.';
      if(error)return;
@@ -113,7 +124,7 @@
      const record=data[0],main=document.querySelector('main');main.querySelector('h1').textContent=record.title;main.querySelector('.edu-page-hero p').textContent=record.subtitle;
      document.title=record.title+' | 무드웰니스 교육협회';
      course.querySelector('#course-default').hidden=Boolean(record.body);
-     const box=panel();box.classList.add('edu-profile');if(record.body)paragraphBody(record.body,box);if(record.photo_path||record.body){course.prepend(box);photoFor(record,box);}
+     const box=panel();box.classList.add('edu-profile');if(record.body)paragraphBody(record.body,box);if(photosOf(record).length||record.body){course.prepend(box);photoFor(record,box);}
    }
  }
  async function contentAdmin(root,status,user){
@@ -128,19 +139,40 @@
      const subtitle=label(form,'담당 과정·전문 분야 또는 한 줄 소개','input','text','subtitle',false,300);subtitle.value=record.subtitle||'';
      const body=label(form,'프로필 또는 교육과정 상세 내용','textarea',null,'body',false,12000);body.rows=14;body.value=record.body||'';
      form.append(node('p','문단은 빈 줄로 구분하고, 소제목은 줄 앞에 ## 를 붙여 주세요.'));
-     const photo=label(form,'사진 첨부 (JPG·PNG·WEBP, 5MB 이하)','input','file','photo');photo.accept='image/jpeg,image/png,image/webp';
-     const remove=record.photo_path?label(form,'기존 사진 표시 해제','input','checkbox','remove'):null;
+     const photo=label(form,'사진 첨부 (JPG·PNG·WEBP, 각 5MB 이하)','input','file','photo');
+     photo.accept='image/jpeg,image/png,image/webp';
+     const capacity=()=>kind.value==='faculty'?1:10;
+     const hint=node('p'),existing=node('div'),selected=node('div');form.append(hint,existing,selected);
+     const retained=photosOf(record).map(path=>({path,keep:true}));
+     retained.forEach((item,i)=>{const p=node('label','기존 사진 '+(i+1)+' 유지');const check=node('input');check.type='checkbox';check.checked=true;check.onchange=()=>{item.keep=check.checked;updatePhotos();};p.append(check);existing.append(p);});
+     let files=[];const uploads=new Map();
+     function updatePhotos(){
+       photo.multiple=capacity()>1;
+       hint.textContent='기존 사진과 새 사진을 합쳐 최대 '+capacity()+'장 · 현재 '+(retained.filter(x=>x.keep).length+files.length)+'장';
+       selected.replaceChildren(...files.map(file=>{const row=node('p',file.name+' ');row.append(btn('제거',()=>{files=files.filter(f=>f!==file);updatePhotos();}));return row;}));
+     }
+     kind.addEventListener('change',()=>{files=[];photo.value='';updatePhotos();});
+     photo.onchange=()=>{const picked=[...photo.files];photo.value='';if(retained.filter(x=>x.keep).length+files.length+picked.length>capacity()){status.textContent='등록 가능한 사진 수를 확인해 주세요.';return;}files.push(...picked);updatePhotos();};
+     updatePhotos();
      const publish=label(form,'홈페이지에 공개','input','checkbox','publish');publish.checked=Boolean(record.published);
-     const save=node('button','저장');save.className='edu-button';form.append(save,btn('새로 작성',()=>edit()));let uploaded=null,uploadedFile=null;
+     const save=node('button','저장');save.className='edu-button';form.append(save,btn('새로 작성',()=>edit()));
      form.onsubmit=async e=>{
        e.preventDefault();if(save.disabled)return;
-       const file=photo.files[0],extension=file&&{'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type];
-       if(!title.value.trim()||(file&&(!extension||file.size>5242880||!file.size))){status.textContent='제목과 사진 형식·크기를 확인해 주세요.';return;}
+       const paths=retained.filter(x=>x.keep).map(x=>x.path);
+       const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+       if(!title.value.trim()||paths.length+files.length>capacity()||files.some(file=>!extensions[file.type]||file.size>5242880||!file.size)){status.textContent='제목, 사진 수, 형식과 크기를 확인해 주세요.';return;}
        save.disabled=true;
        try{
-         let path=remove?.checked?null:record.photo_path||null;
-         if(file){if(uploadedFile!==file){const key=user.id+'/'+crypto.randomUUID()+'.'+extension;const result=await db.storage.from(photoBucket).upload(key,file,{contentType:file.type});if(result.error)throw result.error;uploaded=key;uploadedFile=file;}path=uploaded;}
-         const data={kind:kind.value,title:title.value.trim(),subtitle:subtitle.value.trim(),body:body.value.trim(),photo_path:path,published:publish.checked};
+         for(const file of [...files]){
+           if(!uploads.has(file)){
+             const key=user.id+'/'+crypto.randomUUID()+'.'+extensions[file.type];
+             const result=await db.storage.from(photoBucket).upload(key,file,{contentType:file.type});
+             if(result.error)throw result.error;
+             uploads.set(file,key);
+           }
+           paths.push(uploads.get(file));
+         }
+         const data={kind:kind.value,title:title.value.trim(),subtitle:subtitle.value.trim(),body:body.value.trim(),photo_path:paths[0]||null,photo_paths:paths,published:publish.checked};
          const result=await (record.id?db.from(contentTable).update(data).eq('id',record.id):db.from(contentTable).insert(data)).select('id').single();
          if(result.error)throw result.error;
          status.textContent='등록 내용을 저장했습니다.';edit();await refresh();

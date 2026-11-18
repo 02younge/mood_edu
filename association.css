@@ -1,0 +1,54 @@
+:root {
+  --paper: #f2efe6;
+  --ink: #29251f;
+  --muted: #5c5348;
+  --line: #c5baaa;
+  --dark: #3e352b;
+  --display: "Iowan Old Style", "Noto Serif KR", "Batang", Georgia, serif;
+}
+body { background: var(--paper); color: var(--ink); }
+.edu-nav { background: var(--paper); border-color: var(--line); }
+.edu-brand { letter-spacing: -.035em; }
+body h1, .edu-section h2, #curriculum .curr-main-title, .curr-type, .feature-links strong {
+  font-family: var(--display); font-weight: 600; word-break: keep-all;
+}
+.edu-page-hero, body .hero {
+  background: radial-gradient(ellipse at 95% 0%, #82705b, transparent 68%), #3c3228;
+}
+body #hero.edu-hero {
+  min-height: clamp(510px, 77svh, 800px);
+  padding: clamp(68px, 11vw, 150px) max(5vw, 20px) clamp(125px, 16vw, 225px);
+  align-items: flex-start;
+  text-align: left;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(to bottom, transparent 45%, rgb(242 239 230 / .12) 66%, var(--paper) 99%),
+    linear-gradient(105deg, rgb(37 31 24 / .94), rgb(51 43 34 / .71) 46%, rgb(77 62 45 / .24)),
+    url("https://02younge.github.io/Moodwellness/3.jpg");
+  background-size: cover;
+  background-position: center, center, center 44%;
+}
+.edu-hero h1 { max-width: 15ch; letter-spacing: -.055em; }
+.edu-hero p { margin: 0; line-height: 1.85; }
+.home-links { padding-top: clamp(18px, 4vw, 52px); }
+.feature-links { gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.feature-links a { background: #ebe5d8; border: 0; border-radius: 0; min-height: 116px; }
+.feature-links a:hover { background: #e1d7c7; }
+.feature-links strong { margin-bottom: 5px; }
+.edu-section .modal-section { background: #f8f4eb; border-radius: 4px; }
+.edu-hero .edu-actions { row-gap: 8px; }
+body footer a.edu-admin-footer {
+  display: block;
+  width: fit-content;
+  margin: 18px 0 0;
+  font-size: 12px;
+  opacity: .82;
+  text-underline-offset: 3px;
+}
+body footer:not(.edu-foot) a.edu-admin-footer { margin-left: max(5vw, 16px); }
+@media (max-width: 600px) {
+  body #hero.edu-hero { min-height: 0; padding-top: 68px; padding-bottom: 114px; }
+  .edu-hero h1 { font-size: clamp(32px, 8.4vw, 49px); }
+  .feature-links { grid-template-columns: 1fr; }
+  .feature-links a { min-height: 0; padding: 17px; }
+}
