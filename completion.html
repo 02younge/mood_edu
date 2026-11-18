@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수료·자격 | 무드웰니스 교육협회</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fcfbfa;
+            color: #333333;
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+
+        /* 고정 네비게이션 바 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(43, 35, 33, 0.95);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar .logo {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14pt;
+            letter-spacing: 1px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .nav-links a {
+            color: #e0dcd8;
+            text-decoration: none;
+            font-size: 10.5pt;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #d4b29c;
+        }
+        
+        /* 우측 상시 플로팅 버튼 그룹 */
+        .floating-group {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .floating-btn {
+            width: 220px;
+            height: 48px;
+            text-decoration: none;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 10pt;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.03);
+        }
+
+        .floating-kakao {
+            background-color: #FEE500;
+            color: #191919;
+        }
+
+        .floating-kakao:hover {
+            background-color: #fada0a;
+        }
+
+        .floating-apply {
+            background-color: #7d2d3b;
+            color: #ffffff;
+        }
+
+        .floating-apply:hover {
+            background-color: #63232e;
+        }
+
+        .floating-icon {
+            margin-right: 6px;
+            font-size: 12pt;
+        }
+        
+        .section {
+            padding: 100px 30px 80px 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            scroll-margin-top: 60px;
+        }
+        
+        /* 1. 히어로 섹션 */
+        #hero {
+            background-color: #2b2321;
+            color: #ffffff;
+            text-align: center;
+            padding-top: 140px;
+        }
+        
+        .hero-tag {
+            font-size: 12pt;
+            letter-spacing: 3px;
+            color: #d4b29c;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .hero-title {
+            font-size: 32pt;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 0 0 20px 0;
+            color: #ffffff;
+        }
+        
+        .hero-sub {
+            font-size: 15pt;
+            color: #e0dcd8;
+            margin-bottom: 40px;
+        }
+        
+        .hero-keywords {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 50px;
+        }
+        
+        .keyword-badge {
+            background-color: rgba(212, 178, 156, 0.2);
+            border: 1px solid rgba(212, 178, 156, 0.4);
+            padding: 8px 25px;
+            border-radius: 25px;
+            font-size: 11pt;
+            color: #d4b29c;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background-color: #d4b29c;
+            color: #2b2321;
+            padding: 15px 40px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 12pt;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .cta-btn:hover {
+            background-color: #c39e87;
+        }
+        
+        /* 2. 가치관 섹션 */
+        #value {
+            background-color: #f5f1ed;
+            text-align: center;
+        }
+        
+        .section-label {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #8c7667;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .value-title {
+            font-size: 24pt;
+            color: #4a3b32;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            max-width: 900px;
+        }
+        
+        .value-text {
+            font-size: 13pt;
+            color: #5a4f46;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.9;
+        }
+        
+        /* 3. 철학 및 특징 섹션 */
+        #philosophy {
+            background-color: #faf7f5;
+        }
+        
+        .philo-card {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 60px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #eaded7;
+        }
+
+        .philo-title {
+            font-size: 24pt;
+            color: #7d2d3b;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .philo-text {
+            font-size: 12pt;
+            color: #555555;
+            line-height: 1.9;
+        }
+        
+        .why-grid {
+            display: flex;
+            gap: 25px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .why-col {
+            flex: 1;
+            background-color: #ffffff;
+            border: 1px solid #e8e3de;
+            border-radius: 8px;
+            padding: 35px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        
+        .col-num {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 10px;
+        }
+        
+        .col-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 15px;
+            border-left: 4px solid #7d2d3b;
+            padding-left: 10px;
+        }
+        
+        .col-desc {
+            font-size: 11pt;
+            color: #666666;
+            line-height: 1.7;
+        }
+        
+        /* 4. 커리큘럼 섹션 */
+        #curriculum {
+            background-color: #ffffff;
+        }
+
+        .curr-main-title {
+            font-size: 26pt;
+            color: #4a3b32;
+            text-align: center;
+            margin-bottom: 50px;
+            font-weight: bold;
+        }
+        
+        .curr-grid {
+            display: flex;
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        .curr-col {
+            flex: 1;
+            background-color: #ffffff;
+            border: 1px solid #e8e3de;
+            border-top: 5px solid #7d2d3b;
+            border-radius: 4px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .curr-col.accent {
+            border-top-color: #8c7667;
+        }
+        
+        .curr-type {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        
+        .curr-subtype {
+            font-size: 11pt;
+            color: #888888;
+            margin-bottom: 30px;
+        }
+        
+        .curr-section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 15px;
+            margin-top: 20px;
+        }
+
+        .curr-col.accent .curr-section-title {
+            color: #8c7667;
+        }
+        
+        .curr-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+        
+        .curr-list li {
+            font-size: 11pt;
+            color: #555555;
+            margin-bottom: 10px;
+            padding-left: 22px;
+            position: relative;
+        }
+        
+        .curr-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #7d2d3b;
+            font-weight: bold;
+        }
+        
+        .curr-col.accent .curr-list li::before {
+            color: #8c7667;
+        }
+        
+        .curr-detail-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .curr-detail-list li {
+            font-size: 10.5pt;
+            color: #666666;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .curr-detail-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #ccc;
+        }
+
+        .inner-link-btn {
+            margin-top: auto;
+            background-color: #7d2d3b;
+            color: #ffffff;
+            text-align: center;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 11pt;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .curr-col.accent .inner-link-btn {
+            background-color: #8c7667;
+        }
+
+        .inner-link-btn:hover {
+            background-color: #63232e;
+        }
+
+        .curr-col.accent .inner-link-btn:hover {
+            background-color: #725f52;
+        }
+        
+        /* 5. 추천 대상 섹션 */
+        #target {
+            background-color: #fcfbfa;
+        }
+        
+        .target-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .target-inner {
+            background-color: #ffffff;
+            border: 1px solid #eeded7;
+            border-radius: 8px;
+            padding: 35px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+        }
+        
+        .target-num {
+            font-size: 13pt;
+            color: #8c7667;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .target-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 20px;
+        }
+        
+        .target-list {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .target-list li {
+            font-size: 10.5pt;
+            color: #555555;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        /* 6. 푸터 섹션 */
+        .footer {
+            background-color: #7d2d3b;
+            color: #ffffff;
+            padding: 60px 30px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .footer-cta {
+            font-size: 20pt;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+        
+        .footer-sub {
+            font-size: 13pt;
+            color: #e0c5c9;
+            margin-bottom: 35px;
+        }
+        
+        .footer-btn {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #7d2d3b;
+            padding: 15px 45px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 12pt;
+            transition: background-color 0.3s;
+        }
+
+        .footer-btn:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .footer-info {
+            margin-top: 50px;
+            font-size: 9.5pt;
+            color: #c9a0a6;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 30px;
+            line-height: 1.8;
+        }
+
+        /* 모달(Modal) 팝업 레이아웃 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #fcfbfa;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 40px 30px;
+            position: relative;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20pt;
+            background: none;
+            border: none;
+            color: #555555;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-header-tag {
+            font-size: 10.5pt;
+            color: #8c7667;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .modal-title {
+            font-size: 22pt;
+            color: #7d2d3b;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        .modal-subtitle {
+            font-size: 13pt;
+            color: #333333;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eeded7;
+            padding-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .modal-section {
+            margin-bottom: 30px;
+        }
+
+        .modal-section-title {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #4a3b32;
+            margin-bottom: 12px;
+            border-left: 4px solid #7d2d3b;
+            padding-left: 10px;
+        }
+
+        .modal-intro-text {
+            font-size: 11pt;
+            color: #555555;
+            line-height: 1.8;
+            background-color: #f5f1ed;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .modal-features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .modal-feat-box {
+            background: #ffffff;
+            border: 1px solid #e8e3de;
+            padding: 20px 15px;
+            border-radius: 6px;
+        }
+
+        .modal-feat-num {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #7d2d3b;
+            margin-bottom: 5px;
+        }
+
+        .modal-feat-title {
+            font-size: 11.5pt;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 8px;
+        }
+
+        .modal-feat-desc {
+            font-size: 9.5pt;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        /* 모달 팝업 내부의 교육 혜택 전용 그리드 레이아웃 */
+        .modal-benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .modal-benefit-box {
+            background-color: #f5f1ed;
+            border: 1px solid #e8e3de;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .modal-benefit-icon {
+            font-size: 18pt;
+            background-color: #ffffff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #7d2d3b;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .modal-benefit-text {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #4a3b32;
+            line-height: 1.4;
+        }
+
+        .modal-step-box {
+            background: #ffffff;
+            border: 1px solid #eaded7;
+            padding: 25px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .modal-step-title {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #5a4f46;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .modal-step-box:last-child .modal-step-title {
+            background-color: #443a33;
+        }
+
+        .modal-step-list {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .modal-step-list li {
+            font-size: 10.5pt;
+            color: #444444;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .why-grid, .curr-grid, .target-grid, .modal-features-grid, .modal-benefits-grid {
+                flex-direction: column;
+                grid-template-columns: 1fr;
+            }
+            .navbar .nav-links {
+                display: none;
+            }
+            .hero-title {
+                font-size: 22pt;
+            }
+            .floating-group {
+                right: 15px;
+                bottom: 15px;
+            }
+            .floating-btn {
+                width: 190px;
+                height: 42px;
+                font-size: 9pt;
+            }
+        }
+    </style>
+<style>:root{--paper:#f3f0e7;--ink:#28221d;--muted:#65594f;--line:#c9beb0;--dark:#3e332c}body{background:var(--paper);color:var(--ink);font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:16px;line-height:1.7}.edu-nav{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:16px max(5vw,20px);border-bottom:1px solid var(--line)}.edu-nav a,.edu-foot a{color:inherit;text-decoration:none}.edu-nav nav{display:flex;gap:clamp(10px,2vw,24px);flex-wrap:wrap;font-size:14px}.edu-brand{font-weight:800}.edu-hero{padding:clamp(60px,10vw,140px) max(5vw,20px);background:radial-gradient(ellipse at 87% 100%,#aa917b 0%,transparent 57%),linear-gradient(128deg,#312820,#524338 70%);color:#fffaf0}.edu-hero h1{font-size:clamp(34px,6vw,84px);line-height:1.14;letter-spacing:-.065em;margin:15px 0 24px;word-break:keep-all}.edu-hero p{max-width:570px}.edu-kicker{font-size:12px;letter-spacing:.12em;font-weight:700}.edu-section,#curriculum.section{width:min(1160px,90vw);margin:auto;padding:clamp(48px,7vw,100px) 0;border-bottom:1px solid var(--line);text-align:left;background:transparent;max-width:none}.edu-section h2,#curriculum .curr-main-title{font-size:clamp(28px,4vw,52px);line-height:1.24;letter-spacing:-.045em;margin:8px 0 24px;color:var(--ink)}.edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:0;border-top:1px solid var(--line)}.edu-grid article{padding:24px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}.edu-grid article:last-child{border-right:0}.edu-grid h3{margin:0 0 8px}.edu-grid p,.edu-section>p{color:var(--muted);max-width:70ch}.edu-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}.edu-button,.inner-link-btn{display:inline-block;border:1px solid var(--dark);border-radius:999px;padding:10px 19px;color:#fffaf0;background:var(--dark);text-decoration:none;font:inherit;font-size:14px;cursor:pointer}.edu-hero .edu-button{background:#fffaf0;color:var(--ink);border-color:#fffaf0}.edu-hero .edu-button.secondary{background:transparent;color:#fffaf0}.edu-foot{background:var(--dark);color:#fffaf0;padding:36px 5vw}.edu-foot a{display:inline-block;margin:8px 20px 0 0;text-decoration:underline}#curriculum .curr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}#curriculum .curr-col{background:#ebe4da;color:var(--ink);border:1px solid var(--line);box-shadow:none;padding:clamp(17px,3vw,34px)}#curriculum .curr-col.accent{background:#e2d7ca}#curriculum .section-label{color:var(--muted)}a:focus-visible,button:focus-visible{outline:2px solid #95745a;outline-offset:4px}@media(max-width:700px){#curriculum .curr-grid{grid-template-columns:1fr}.edu-grid article{border-right:0}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}</style>
+<style>
+.edu-button,.inner-link-btn,.button{transition:transform .2s ease,box-shadow .2s ease}
+@media(hover:hover){.edu-button:hover,.inner-link-btn:hover,.button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgb(40 34 29 / .18)}}
+@keyframes mw-rise{from{opacity:.45;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){.mw-enter{animation:mw-rise .48s ease-out both}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.edu-button,.inner-link-btn,.button{transition:none}}
+</style>
+<style>
+.edu-nav{position:sticky;top:0;background:#f3f0e7;z-index:5}.edu-nav nav a:hover{text-decoration:underline}.edu-page-hero{padding:clamp(42px,7vw,95px) 5vw;background:linear-gradient(118deg,#30261f,#6a5749);color:#fffaf0}.edu-page-hero h1{font-size:clamp(35px,6vw,72px);letter-spacing:-.055em;line-height:1.18;margin:12px 0}.edu-page-hero p{max-width:58ch;margin-bottom:0}.feature-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px}.feature-links a{display:block;padding:24px;background:#e8dfd1;border:1px solid #c9beb0;border-radius:12px;text-decoration:none;color:#28221d;transition:background .2s}.feature-links a:hover{background:#dacbbb}.feature-links strong{display:block;font-size:19px}.edu-section .modal-section{margin:24px 0;padding:clamp(18px,4vw,32px);background:#fffaf1;border:1px solid #c9beb0;border-radius:12px}.edu-section .modal-section-title{font-size:clamp(19px,3vw,26px);color:#382b23}.edu-section .modal-feat-box,.edu-section .modal-step-box{background:#f0e8dc;color:#28221d}.edu-section .modal-grid,.edu-section .modal-feat-grid{gap:12px}.edu-section .modal-text{color:#51473e}.edu-section .modal-subtitle{color:#51473e}.cal-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.cal-bar h2{margin:0}.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}.cal-day{background:#fffaf1;min-height:76px;padding:6px;border:1px solid #ddd1c2;overflow-wrap:anywhere}.cal-day.empty{background:transparent;border-color:transparent}.cal-week{text-align:center;font-weight:700;font-size:13px}.cal-event{display:block;width:100%;border:0;text-align:left;background:#e3d4c4;color:#30261f;border-radius:4px;padding:4px;cursor:pointer;margin-top:4px}.edu-panel{margin:20px 0;padding:24px;background:#ebe2d4;border-radius:12px}.edu-form{display:grid;gap:12px;max-width:640px}.edu-form label{display:grid;gap:3px}.edu-form input,.edu-form textarea,.edu-form select{width:100%;font:inherit;padding:8px;border:1px solid #a89989;border-radius:6px;background:#fffcf5}.edu-form input[type=checkbox]{width:auto}.edu-form button{justify-self:start}.edu-panel pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}.edu-profile img{width:100%;max-height:260px;object-fit:cover;border-radius:8px}.edu-profile p{white-space:pre-wrap}@media(max-width:560px){.cal-day{min-height:45px;padding:2px;font-size:12px}.cal-event{font-size:10px;padding:2px}.edu-panel{padding:14px}.edu-nav nav{gap:8px 12px}}
+</style></head>
+<body><header class="edu-nav"><a class="edu-brand" href="./">무드웰니스 교육협회</a><nav aria-label="주 메뉴"><a href="./courses.html">과정</a><a href="./completion.html">수료·자격</a><a href="./cycle.html">선순환 구조</a><a href="./calendar.html">교육 일정</a><a href="./instructors.html">강사진</a><a href="./partners.html">기업 출강·제휴</a></nav></header><main><section class="edu-page-hero"><h1>수료·자격 안내</h1><p>수료 요건을 확인하고, 센터 파일럿 수업과 공식 강사 활동으로 이어지는 경로를 살펴보세요.</p></section><section id="completion" class="edu-section"><span class="edu-kicker">COMPLETION & PRACTICE</span><h2>수료·자격과 이후 활동</h2><div class="edu-grid"><article><h3>수료 및 자격 안내</h3><p>교육 시간, 평가 방식, 수료 또는 자격 발급 조건은 과정별로 확인해 주세요.</p><a href="https://pf.kakao.com/_ujjxlX/chat">과정별 조건 문의 ↗</a></article><article><h3>센터 파일럿 클래스</h3><p>수료 후 원데이 클래스나 4주 팝업 크루를 제안할 수 있습니다. 프로그램과 센터 일정 등을 검토한 뒤 개설을 협의합니다. 센터 파일럿 수업을 마친 뒤 무드웰니스 스튜디오에서 담당 수업을 운영하는 강사는 무드웰니스 공식 강사로 활동할 수 있습니다.</p><a href="https://pf.kakao.com/_ujjxlX/chat">클래스 개설 문의 ↗</a></article><article><h3>센터 수업 경험하기</h3><p>새로운 테마의 수업과 원데이 클래스는 무드웰니스 센터에서 확인할 수 있습니다.</p><a href="https://02younge.github.io/Moodwellness/#oneday">센터 원데이 일정 ↗</a></article></div><div class="edu-actions"><a class="edu-button" href="./cycle.html">교육과 현장의 선순환 알아보기 ↗</a></div></section></main><footer class="edu-foot"><strong>무드웰니스 교육협회</strong><div><a href="./">교육협회 홈</a><a href="https://02younge.github.io/Moodwellness/">센터 홈페이지</a><a href="https://www.instagram.com/moodwellness_edu/">인스타그램</a></div></footer><script>
+(() => {
+  if (!matchMedia('(prefers-reduced-motion: no-preference)').matches || !('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      observer.unobserve(entry.target);
+      entry.target.classList.add('mw-enter');
+      entry.target.addEventListener('animationend', () => entry.target.classList.remove('mw-enter'), { once: true });
+    }
+  }, { threshold: .12 });
+  document.querySelectorAll('.edu-hero h1, .hero h1, main section h2, .edu-grid article, .curr-col, main ol li').forEach(node => observer.observe(node));
+})();
+</script></body></html>
