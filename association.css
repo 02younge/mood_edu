@@ -52,3 +52,33 @@ body footer:not(.edu-foot) a.edu-admin-footer { margin-left: max(5vw, 16px); }
   .feature-links { grid-template-columns: 1fr; }
   .feature-links a { min-height: 0; padding: 17px; }
 }
+
+.edu-nav { padding: 12px max(5vw, 16px); box-shadow: none; }
+.edu-nav nav a { padding: 4px 0; border-bottom: 1px solid transparent; }
+.edu-nav nav a[aria-current] { border-color: currentColor; font-weight: 700; }
+.edu-nav nav a:hover { text-underline-offset: 4px; }
+body #hero.edu-hero { min-height: clamp(440px, 66svh, 680px); }
+.edu-page-hero, body .hero { padding-block: clamp(35px, 6vw, 76px); background: #e8e1d5; color: var(--ink); }
+body .hero h1, body .hero p, body .hero .kicker { color: var(--ink); }
+.edu-page-hero h1, body .hero h1 { font-size: clamp(32px, 5vw, 60px); }
+.edu-page-hero p { color: var(--muted); }
+.edu-section { padding-block: clamp(38px, 6vw, 78px); }
+.edu-section h2 { font-size: clamp(26px, 3.5vw, 44px); }
+.edu-section p, .modal-intro-text, .modal-feat-desc, .modal-step-desc { line-height: 1.8; }
+#course-content { max-width: 930px; }
+#course-content .modal-section { border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0; padding: 22px 0 30px; margin: 0 0 14px; }
+#course-content .modal-section-title { margin-bottom: 14px; }
+#course-content .modal-feat-num { display: none; }
+.home-links { padding-top: clamp(18px, 4vw, 52px); }
+.home-programs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.home-programs a { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 92px; }
+.home-programs a span { color: var(--muted); font-size: .9rem; }
+.edu-foot { background: #e7e0d4; color: var(--ink); border-top: 1px solid var(--line); }
+.edu-foot a { font-size: .875rem; text-underline-offset: 3px; }
+@media (max-width: 620px) {
+  .edu-nav { row-gap: 4px; }
+  .edu-nav nav { gap: 8px 16px; }
+  body #hero.edu-hero { min-height: 0; padding-top: 61px; padding-bottom: 106px; }
+  .home-programs { grid-template-columns: 1fr; }
+  .home-programs a { min-height: 72px; }
+}
