@@ -8,9 +8,15 @@
  const format=(y,m,d)=>[y,String(m+1).padStart(2,'0'),String(d).padStart(2,'0')].join('-');
  const eventDates=e=>e.starts_on===e.ends_on?e.starts_on:e.starts_on+' ~ '+e.ends_on;
  const courseNames={dynamic:'다이나믹 무브먼트 전문가 과정',swedish:'스웨디쉬 프로 데뷔 과정'};
+ function httpsLink(value){
+   try{
+     const url=new URL(value);
+     return url.protocol==='https:'&&!url.username&&!url.password?url.href:null;
+   }catch{return null;}
+ }
  function destination(event){
    if(event.link_type==='course'&&Object.hasOwn(courseNames,event.link_target))return './'+event.link_target+'.html';
-   if(event.link_type==='external'){try{const url=new URL(event.link_target);if(url.protocol==='https:'&&!url.username&&!url.password)return url.href;}catch{}}
+   if(event.link_type==='external')return httpsLink(event.link_target);
    return null;
  }
  function details(e){const div=panel();div.append(node('h3',e.title),node('p',[eventDates(e),e.time_label,e.venue].filter(Boolean).join(' · ')));if(e.details)div.append(node('pre',e.details));const href=destination(e);if(href){const link=node('a',e.link_type==='course'?'교육과정 소개 보기 ↗':'신청·외부 안내 보기 ↗');link.href=href;link.className='edu-button';div.append(link);}return div;}
@@ -28,7 +34,7 @@
    const list=summary.querySelector('[data-course-dates]');
    const status=summary.querySelector('[data-course-status]');
    try{
-     const {data,error}=await db.from(events).select('title,starts_on,ends_on,time_label,venue,link_type,link_target')
+     const {data,error}=await db.from(events).select('title,starts_on,ends_on,time_label,venue,link_type,link_target,application_url')
        .eq('published',true).gte('ends_on',todayInSeoul()).order('starts_on').order('title');
      if(error)throw error;
      const upcoming=data.filter(event=>matchesCourse(event,summary.dataset.courseSchedule));
@@ -41,6 +47,15 @@
        item.append(node('strong',event.title),
          node('span',[summaryDates(event),event.time_label].filter(Boolean).join(' · ')),
          node('span',event.venue.trim()||'장소는 별도 안내'));
+       const applicationUrl=httpsLink(event.application_url);
+       if(applicationUrl){
+         const apply=node('a',Number(event.starts_on.slice(5,7))+'월 기수 신청');
+         apply.href=applicationUrl;
+         apply.className='edu-button';
+         item.append(apply);
+       }else{
+         item.append(node('span','신청 예정'));
+       }
        list.append(item);
      }
      status.hidden=true;
@@ -88,6 +103,8 @@
    function edit(event={}){
      editor.replaceChildren(node('h2',event.id?'일정 수정':'새 교육 일정'));const form=node('form');form.className='edu-form';editor.append(form);
      const inputs={};for(const [key,title,type,max] of [['title','교육 제목','text',120],['starts_on','시작일','date'],['ends_on','종료일','date'],['time_label','시간 안내','text',100],['venue','장소','text',200],['details','교육 세부 내용','textarea',6000]]){const input=label(form,title,type==='textarea'?'textarea':'input',type==='textarea'?null:type,key,['title','starts_on'].includes(key),max);input.value=event[key]||'';inputs[key]=input;}
+     const application=label(form,'이 기수의 신청폼 주소 (선택)','input','url','application_url',false,2000);
+     application.value=event.application_url||'';
      const linkType=label(form,'달력에서 일정을 눌렀을 때','select',null,'link_type');
      const course=label(form,'연결할 교육과정','select',null,'link_course');
      const external=label(form,'구글폼 또는 외부 주소','input','url','link_external',false,2000);
@@ -99,7 +116,7 @@
      linkType.onchange=syncLinks;syncLinks();
      const publish=label(form,'홈페이지에 공개','input','checkbox','published');publish.checked=Boolean(event.published);
      const save=node('button','일정 저장');save.className='edu-button';form.append(save);if(event.id)form.append(btn('새 일정 작성',()=>edit()));
-     form.onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(Object.entries(inputs).map(([key,input])=>[key,input.value.trim()]));data.ends_on=data.ends_on||data.starts_on;data.published=publish.checked;data.link_type=linkType.value;data.link_target=data.link_type==='course'?course.value:data.link_type==='external'?external.value.trim():'';if(data.link_type!=='none'&&!destination(data)){status.textContent='올바른 HTTPS 링크를 입력해 주세요.';return;}if(!data.title||data.ends_on<data.starts_on){status.textContent='제목과 시작일·종료일을 확인해 주세요.';return;}save.disabled=true;
+     form.onsubmit=async e=>{e.preventDefault();const data=Object.fromEntries(Object.entries(inputs).map(([key,input])=>[key,input.value.trim()]));data.ends_on=data.ends_on||data.starts_on;data.published=publish.checked;data.application_url=application.value.trim();if(data.application_url&&!httpsLink(data.application_url)){status.textContent='신청폼 주소는 올바른 HTTPS 링크를 입력해 주세요.';return;}data.link_type=linkType.value;data.link_target=data.link_type==='course'?course.value:data.link_type==='external'?external.value.trim():'';if(data.link_type!=='none'&&!destination(data)){status.textContent='올바른 HTTPS 링크를 입력해 주세요.';return;}if(!data.title||data.ends_on<data.starts_on){status.textContent='제목과 시작일·종료일을 확인해 주세요.';return;}save.disabled=true;
        const result=await (event.id?db.from(events).update(data).eq('id',event.id):db.from(events).insert(data)).select('id').single();save.disabled=false;if(result.error){status.textContent='일정을 저장하지 못했습니다. 입력값과 권한을 확인해 주세요.';return;}status.textContent='일정을 저장했습니다.';edit();await refresh();};
    }
    async function refresh(){
