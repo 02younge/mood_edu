@@ -4,7 +4,6 @@
     ['specialty','전문 분야','text',160,true],
     ['course','수료 과정명과 기수 또는 수료 시기','text',200,true],
     ['bio','강사 소개','textarea',3000,true],
-    ['photo','공개할 프로필 사진 주소 (선택)','url',500,false],
     ['website','공개할 SNS 또는 문의 주소 (선택)','url',500,false]
   ];
   const labels = {pending:'검토 대기',approved:'승인됨',changes:'수정 필요',new:'접수',contacted:'연락 완료',closed:'검토 종료'};
@@ -18,7 +17,7 @@
     const field = make(type === 'textarea' ? type : 'input');
     if (type !== 'textarea') field.type = type;
     field.name = name;
-    field.maxLength = max;
+    if (max) field.maxLength = max;
     field.required = required;
     if (type === 'url') field.pattern = 'https://.+';
     label.append(field);
@@ -38,20 +37,90 @@
       return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
     } catch { return null; }
   }
-  function card(profile, showPhoto = true) {
+  const photoBucket = 'mw-graduate-photos';
+  const photoTypes = {'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+  function profileImage(url, alt) {
+    const image = make('img');
+    image.src = url;
+    image.alt = alt;
+    image.loading = 'lazy';
+    image.referrerPolicy = 'no-referrer';
+    image.onerror = () => image.remove();
+    return image;
+  }
+  async function showPhotos(db, profile, cover, gallery) {
+    const paths = [profile.cover_path,...(profile.gallery_paths || [])].filter(Boolean);
+    const legacy = safeUrl(profile.photo);
+    if (!paths.length) {
+      if (legacy) cover.append(profileImage(legacy,profile.name+' 프로필'));
+      return;
+    }
+    const {data,error} = await db.storage.from(photoBucket).createSignedUrls(paths,900);
+    if (error) {
+      gallery.textContent = '사진을 불러오지 못했습니다.';
+      return;
+    }
+    if (!profile.cover_path && legacy) cover.append(profileImage(legacy,profile.name+' 프로필'));
+    for (const result of data) {
+      if (!result.signedUrl) continue;
+      const representative = result.path === profile.cover_path;
+      (representative ? cover : gallery).append(profileImage(result.signedUrl,
+        representative ? profile.name+' 프로필' : profile.name+' 활동 사진'));
+    }
+  }
+  function photoFields(db, form, previous) {
+    const cover = input(form,'대표 사진 1장 (선택)','cover_file','file',undefined,false);
+    const gallery = input(form,'교육·활동 사진 추가 (최대 6장)','gallery_files','file',undefined,false);
+    cover.accept = gallery.accept = Object.keys(photoTypes).join(',');
+    gallery.multiple = true;
+    form.append(make('p','사진 한 장당 최대 5MB · JPG, PNG, WEBP'));
+    const keptCover = previous.cover_path || previous.photo
+      ? input(form,'기존 대표 사진 삭제','remove_cover','checkbox',undefined,false) : null;
+    const keptGallery = (previous.gallery_paths || []).map((path,index) => ({
+      path, remove:input(form,'기존 추가 사진 '+(index+1)+' 삭제','remove_gallery','checkbox',undefined,false)
+    }));
+    if (keptCover || keptGallery.length) {
+      const preview = make('div');
+      const portrait = make('div');
+      const images = make('div');
+      portrait.className = 'graduate-cover';
+      images.className = 'graduate-gallery';
+      preview.append(make('p','현재 등록한 사진'),portrait,images);
+      form.append(preview);
+      showPhotos(db,previous,portrait,images);
+    }
+    const uploaded = new WeakMap();
+    return async userId => {
+      const files = [...gallery.files];
+      const keep = keptGallery.filter(item => !item.remove.checked).map(item => item.path);
+      if (files.length + keep.length > 6) throw Error('추가 사진은 기존 사진을 포함해 최대 6장입니다.');
+      const nextCover = cover.files[0];
+      for (const file of [nextCover,...files].filter(Boolean)) {
+        if (!Object.hasOwn(photoTypes,file.type) || file.size === 0 || file.size > 5242880) {
+          throw Error('사진은 5MB 이하의 JPG·PNG·WEBP 파일을 선택해 주세요.');
+        }
+      }
+      async function upload(file) {
+        if (uploaded.has(file)) return uploaded.get(file);
+        const path = userId+'/'+crypto.randomUUID()+'.'+photoTypes[file.type];
+        const {error} = await db.storage.from(photoBucket).upload(path,file,{contentType:file.type});
+        if (error) throw Error('사진을 올리지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        uploaded.set(file,path);
+        return path;
+      }
+      const coverPath = nextCover ? await upload(nextCover) : keptCover?.checked ? '' : previous.cover_path || '';
+      for (const file of files) keep.push(await upload(file));
+      return {cover_path:coverPath, gallery_paths:keep, photo:coverPath || keptCover?.checked ? '' : previous.photo || ''};
+    };
+  }
+  function card(db,profile,review = false) {
     const article = make('article');
     article.className = 'edu-panel';
-    const picture = safeUrl(profile.photo);
-    if (picture && showPhoto) {
-      const image = make('img');
-      image.src = picture;
-      image.alt = profile.name + ' 프로필';
-      image.loading = 'lazy';
-      image.referrerPolicy = 'no-referrer';
-      image.style.cssText = 'width:96px;height:96px;object-fit:cover;border-radius:8px';
-      image.onerror = () => image.remove();
-      article.append(image);
-    }
+    const cover = make('div');
+    const gallery = make('div');
+    cover.className = 'graduate-cover';
+    gallery.className = 'graduate-gallery';
+    article.append(cover);
     article.append(make('h3',profile.name),make('p',profile.specialty),make('p',profile.course),make('pre',profile.bio));
     const url = safeUrl(profile.website);
     if (url) {
@@ -61,6 +130,8 @@
       link.target = '_blank';
       article.append(link);
     }
+    article.append(gallery);
+    showPhotos(db,review ? {...profile,photo:''} : profile,cover,gallery);
     return article;
   }
   async function directory() {
@@ -84,7 +155,7 @@
         list.textContent = error ? '강사 목록을 불러오지 못했습니다.' : '아직 공개된 강사 프로필이 없습니다.';
         return;
       }
-      list.append(...data.map(row => card(row.profile)));
+      list.append(...data.map(row => card(db,row.profile)));
     }
     async function loadEditor() {
       root.replaceChildren();
@@ -137,6 +208,7 @@
       for (const [key,title,type,max,required] of fields) {
         input(form,title,key,type,max,required).value = data?.profile[key] ?? '';
       }
+      const savePhotos = photoFields(db,form,data?.profile || {});
       const consent = make('label');
       const checkbox = make('input');
       checkbox.type = 'checkbox';
@@ -148,15 +220,27 @@
       form.onsubmit = async event => {
         event.preventDefault();
         submit.disabled = true;
-        const profile = Object.fromEntries(Array.from(new FormData(form), ([key,value]) => [key,value.trim()]));
-        const submissions = db.from('mw_edu_profile_submissions');
-        const save = data
-          ? submissions.update({profile}).eq('user_id',user.id).eq('revision',data.revision)
-          : submissions.insert({user_id:user.id,profile});
-        const result = await save.select('revision').single();
-        submit.disabled = false;
-        message.textContent = result.error ? '프로필을 저장하지 못했습니다. 입력 내용을 확인해 주세요.' : '검토 요청을 접수했습니다.';
-        if (!result.error) await loadEditor();
+        message.textContent = '프로필과 사진을 저장하는 중입니다.';
+        try {
+          const values = new FormData(form);
+          const profile = Object.fromEntries(fields.map(([key]) => [key,values.get(key).trim()]));
+          if (fields.some(([key,,,,required]) => required && !profile[key])) {
+            message.textContent = '필수 항목을 입력해 주세요.';
+            return;
+          }
+          Object.assign(profile,await savePhotos(user.id));
+          const submissions = db.from('mw_edu_profile_submissions');
+          const save = data
+            ? submissions.update({profile}).eq('user_id',user.id).eq('revision',data.revision)
+            : submissions.insert({user_id:user.id,profile});
+          const result = await save.select('revision').single();
+          message.textContent = result.error ? '프로필을 저장하지 못했습니다. 입력 내용을 확인해 주세요.' : '검토 요청을 접수했습니다.';
+          if (!result.error) await loadEditor();
+        } catch (error) {
+          message.textContent = error.message;
+        } finally {
+          submit.disabled = false;
+        }
       };
     }
     await Promise.all([loadPublic(),loadEditor()]);
@@ -179,16 +263,8 @@
       if (!submissions.error && !submissions.data.length) profiles.textContent = '제출된 강사 프로필이 없습니다.';
       if (!incoming.error && !incoming.data.length) applications.textContent = '접수된 공식 강사 지원서가 없습니다.';
       for (const row of (submissions.data || []).sort((a,b) => Number(b.status === 'pending') - Number(a.status === 'pending'))) {
-        const article = card(row.profile,false);
+        const article = card(db,row.profile,true);
         article.append(make('p',labels[row.status] + (row.note ? ' · '+row.note : '')));
-        const url = safeUrl(row.profile.photo);
-        if (url) {
-          const link = make('a','제출한 사진 확인');
-          link.href = url;
-          link.target = '_blank';
-          link.rel = 'noreferrer';
-          article.append(link);
-        }
         const actions = make('div');
         actions.className = 'edu-actions';
         const review = async (decision, feedback = '') => {

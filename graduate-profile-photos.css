@@ -1,0 +1,6 @@
+.graduate-cover:empty,.graduate-gallery:empty{display:none}
+.graduate-cover img{display:block;width:112px;height:112px;object-fit:cover;border-radius:8px;margin:0 0 1rem}
+.graduate-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr));gap:8px;margin-top:12px}
+.graduate-gallery img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px}
+.edu-form input[type=file]{max-width:100%;font:inherit}
+.edu-form input[type=checkbox]{width:auto}
