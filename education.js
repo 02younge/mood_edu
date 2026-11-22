@@ -14,8 +14,42 @@
    return null;
  }
  function details(e){const div=panel();div.append(node('h3',e.title),node('p',[eventDates(e),e.time_label,e.venue].filter(Boolean).join(' · ')));if(e.details)div.append(node('pre',e.details));const href=destination(e);if(href){const link=node('a',e.link_type==='course'?'교육과정 소개 보기 ↗':'신청·외부 안내 보기 ↗');link.href=href;link.className='edu-button';div.append(link);}return div;}
+ const todayInSeoul=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ function matchesCourse(event,kind){
+   if(event.link_type==='course')return event.link_target===kind;
+   const title=event.title.replace(/\s/g,'').toLowerCase();
+   return kind==='dynamic'?/다이나믹무브먼트|dmp/.test(title):/스웨디[시쉬]|swedish/.test(title);
+ }
+ const summaryDates=event=>{
+   const date=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric'});
+   return [...new Set([event.starts_on,event.ends_on])].map(day=>date.format(new Date(day+'T00:00:00+09:00'))).join(' ~ ');
+ };
+ async function courseSchedule(summary){
+   const list=summary.querySelector('[data-course-dates]');
+   const status=summary.querySelector('[data-course-status]');
+   try{
+     const {data,error}=await db.from(events).select('title,starts_on,ends_on,time_label,venue,link_type,link_target')
+       .eq('published',true).gte('ends_on',todayInSeoul()).order('starts_on').order('title');
+     if(error)throw error;
+     const upcoming=data.filter(event=>matchesCourse(event,summary.dataset.courseSchedule));
+     if(!upcoming.length){
+       status.textContent='현재 공개된 개강 일정이 없어요.';
+       return;
+     }
+     for(const event of upcoming){
+       const item=node('li');
+       item.append(node('strong',event.title),
+         node('span',[summaryDates(event),event.time_label].filter(Boolean).join(' · ')),
+         node('span',event.venue.trim()||'장소는 별도 안내'));
+       list.append(item);
+     }
+     status.hidden=true;
+   }catch{
+     status.textContent='일정을 불러오지 못했어요. 월간 교육 일정에서 확인해 주세요.';
+   }
+ }
  async function calendar(){
-   const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+   const today=todayInSeoul();
    let [year,month]=today.split('-').map(Number);month--;let request=0;
    const grid=get('calendar-grid'),status=get('calendar-status'),list=get('calendar-list');
    async function render(){
@@ -193,5 +227,7 @@
  if(!db){for(const id of ['calendar-status','admin-status','teacher-status'])if(get(id))get(id).textContent='연결을 불러오지 못했습니다. 새로고침해 주세요.';return;}
  if(get('calendar-grid'))calendar();
  if(get('admin-root'))admin();
+ const summary=document.querySelector('[data-course-schedule]');
+ if(summary)courseSchedule(summary);
  if(get('teacher-list')||get('course-content'))publicContent();
 })();
