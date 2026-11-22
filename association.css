@@ -141,3 +141,51 @@ details[open] .summary-icon::before { content: '−'; }
   .program-picker { padding: 15px 20px; }
   .edu-page-hero, body .hero { width: calc(100% - 16px); }
 }
+
+/* Keep the same reading rhythm on the home page and course pages. */
+.edu-hero p,
+.edu-page-hero p,
+.edu-section p,
+.edu-section li,
+body .modal-text,
+body .modal-intro-text,
+body .modal-feat-desc,
+body .modal-step-desc {
+  font-size: 1rem;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+.edu-page-hero p,
+.edu-section > p,
+.showcase-heading p,
+body .modal-text,
+body .modal-feat-desc,
+body .modal-step-desc {
+  color: var(--muted);
+}
+.edu-section > p,
+.edu-page-hero p {
+  max-width: 64ch;
+}
+#course-content .modal-section-title,
+.edu-section h2 {
+  line-height: 1.35;
+}
+.edu-foot {
+  padding-block: 24px;
+}
+.edu-foot > div {
+  margin-top: 8px;
+}
+@media (max-width: 620px) {
+  .edu-section {
+    padding-block: 34px;
+  }
+  .edu-section h2 {
+    font-size: clamp(24px, 6vw, 32px);
+  }
+  #course-content .modal-section {
+    padding-block: 18px 24px;
+  }
+}
