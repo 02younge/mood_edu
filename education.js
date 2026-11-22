@@ -19,7 +19,18 @@
    if(event.link_type==='external')return httpsLink(event.link_target);
    return null;
  }
- function details(e){const div=panel();div.append(node('h3',e.title),node('p',[eventDates(e),e.time_label,e.venue].filter(Boolean).join(' · ')));if(e.details)div.append(node('pre',e.details));const href=destination(e);if(href){const link=node('a',e.link_type==='course'?'교육과정 소개 보기 ↗':'신청·외부 안내 보기 ↗');link.href=href;link.className='edu-button';div.append(link);}return div;}
+ const recruitmentLabels={open:'모집 중',limited:'마감 임박',closed:'마감'};
+ function recruitmentLabel(event){
+   return event.recruitment_status==='open'&&!httpsLink(event.application_url)
+     ? '신청 예정' : recruitmentLabels[event.recruitment_status];
+ }
+ function recruitmentBadge(event){
+   const badge=node('strong',recruitmentLabel(event));
+   badge.className='edu-recruitment-status';
+   badge.dataset.status=event.recruitment_status;
+   return badge;
+ }
+ function details(e,showRecruitment=false){const div=panel();div.append(node('h3',e.title),node('p',[eventDates(e),e.time_label,e.venue].filter(Boolean).join(' · ')));if(showRecruitment)div.append(recruitmentBadge(e));if(e.details)div.append(node('pre',e.details));const href=destination(e);if(href){const link=node('a',e.link_type==='course'?'교육과정 소개 보기 ↗':'신청·외부 안내 보기 ↗');link.href=href;link.className='edu-button';div.append(link);}return div;}
  const todayInSeoul=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  function matchesCourse(event,kind){
    if(event.link_type==='course')return event.link_target===kind;
@@ -34,7 +45,7 @@
    const list=summary.querySelector('[data-course-dates]');
    const status=summary.querySelector('[data-course-status]');
    try{
-     const {data,error}=await db.from(events).select('title,starts_on,ends_on,time_label,venue,link_type,link_target,application_url')
+     const {data,error}=await db.from(events).select('title,starts_on,ends_on,time_label,venue,link_type,link_target,application_url,recruitment_status')
        .eq('published',true).gte('ends_on',todayInSeoul()).order('starts_on').order('title');
      if(error)throw error;
      const upcoming=data.filter(event=>matchesCourse(event,summary.dataset.courseSchedule));
@@ -48,13 +59,12 @@
          node('span',[summaryDates(event),event.time_label].filter(Boolean).join(' · ')),
          node('span',event.venue.trim()||'장소는 별도 안내'));
        const applicationUrl=httpsLink(event.application_url);
-       if(applicationUrl){
+       item.append(recruitmentBadge(event));
+       if(applicationUrl&&event.recruitment_status!=='closed'){
          const apply=node('a',Number(event.starts_on.slice(5,7))+'월 기수 신청');
          apply.href=applicationUrl;
          apply.className='edu-button';
          item.append(apply);
-       }else{
-         item.append(node('span','신청 예정'));
        }
        list.append(item);
      }
@@ -74,12 +84,12 @@
      for(const name of ['일','월','화','수','목','금','토']){const cell=node('div',name);cell.className='cal-week';grid.append(cell);}
      for(let i=0;i<offset;i++){const cell=node('div');cell.className='cal-day empty';cell.setAttribute('aria-hidden','true');grid.append(cell);}
      for(let day=1;day<=count;day++){const cell=node('div',day);cell.className='cal-day';if(format(y,m,day)===today)cell.setAttribute('aria-current','date');grid.append(cell);cells.push(cell);}
-     const {data,error}=await db.from(events).select('id,title,starts_on,ends_on,time_label,venue,details,link_type,link_target').eq('published',true).lte('starts_on',format(y,m,count)).gte('ends_on',format(y,m,1)).order('starts_on').order('title');
+     const {data,error}=await db.from(events).select('id,title,starts_on,ends_on,time_label,venue,details,link_type,link_target,application_url,recruitment_status').eq('published',true).lte('starts_on',format(y,m,count)).gte('ends_on',format(y,m,1)).order('starts_on').order('title');
      if(current!==request)return;
      if(error){status.textContent='교육 일정을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';return;}
      status.textContent=data.length?'이달의 교육 '+data.length+'건':'이달에 공개된 교육 일정이 없습니다.';
      const headings=new Map();
-     for(const event of data){const section=details(event);const heading=section.querySelector('h3');heading.tabIndex=-1;headings.set(event.id,heading);list.append(section);}
+     for(const event of data){const section=details(event,true);const heading=section.querySelector('h3');heading.tabIndex=-1;headings.set(event.id,heading);list.append(section);}
      for(let day=1;day<=count;day++)for(const event of data){const date=format(y,m,day);if(date<event.starts_on||date>event.ends_on)continue;const b=node('button',event.title);b.type='button';b.className='cal-event';b.setAttribute('aria-label',date+' '+event.title+' 상세 보기');b.onclick=()=>{const href=destination(event);if(href)location.assign(href);else headings.get(event.id).focus();};cells[day-1].append(b);}
    }
    const move=delta=>{if(month+delta<0){year--;month=11;}else if(month+delta>11){year++;month=0;}else month+=delta;render();};
@@ -124,7 +134,36 @@
      list.replaceChildren(node('h2','등록된 교육 일정'));
      if(error){list.append(node('p','일정 목록을 불러오지 못했습니다.'));return;}
      if(!data.length)list.append(node('p','등록된 일정이 없습니다.'));
-     for(const event of data){const row=details(event);row.append(node('p',event.published?'공개 중':'비공개'),btn('수정',()=>{edit(event);editor.scrollIntoView({block:'start'});}));list.append(row);}
+     for(const event of data){
+       const row=details(event);
+       const badge=recruitmentBadge(event);
+       const actions=node('div');
+       actions.className='edu-actions';
+       const buttons=Object.entries(recruitmentLabels).map(([value,label])=>{
+         const control=btn(label,async()=>{
+           buttons.forEach(button=>button.disabled=true);
+           try{
+             const {data:saved,error}=await db.from(events).update({recruitment_status:value})
+               .eq('id',event.id).select('recruitment_status').single();
+             if(error||!saved)throw error;
+             event.recruitment_status=saved.recruitment_status;
+             badge.dataset.status=event.recruitment_status;
+             badge.textContent=recruitmentLabel(event);
+             status.textContent='모집 상태를 저장했습니다.';
+           }catch{
+             status.textContent='모집 상태를 저장하지 못했습니다. 다시 시도해 주세요.';
+           }finally{
+             buttons.forEach(button=>button.disabled=button.dataset.status===event.recruitment_status);
+           }
+         });
+         control.dataset.status=value;
+         control.disabled=value===event.recruitment_status;
+         return control;
+       });
+       actions.append(...buttons,btn('수정',()=>{edit(event);editor.scrollIntoView({block:'start'});}));
+       row.append(node('p',event.published?'공개 중':'비공개'),badge,actions);
+       list.append(row);
+     }
    }
    edit();await refresh();
    await contentAdmin(root,status,user);

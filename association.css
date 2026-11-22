@@ -206,3 +206,16 @@ body .modal-step-desc {
 .edu-course-dates li { display: grid; gap: 3px; line-height: 1.6; }
 .edu-course-dates li + li { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 12px; }
 .edu-course-dates span { color: var(--muted); overflow-wrap: anywhere; }
+
+.edu-recruitment-status {
+  display: inline-block;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #e8e0d2;
+  color: #433628;
+  font-size: .875rem;
+}
+.edu-recruitment-status[data-status="limited"] { background: #f5dfba; color: #693c13; }
+.edu-recruitment-status[data-status="closed"] { background: #e9d7d4; color: #652c29; }
+.edu-course-dates li > .edu-button { justify-self: start; margin-top: 6px; }
