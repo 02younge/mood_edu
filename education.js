@@ -109,6 +109,15 @@
    const [owner,role]=await Promise.all([db.rpc('mw_is_admin'),db.from('mw_edu_admins').select('user_id').eq('user_id',user.id).maybeSingle()]);
    root.append(btn('로그아웃',async()=>{await db.auth.signOut();status.textContent='';await admin();}));
    if(!owner.data&&!role.data){status.textContent=owner.error||role.error?'관리 권한을 확인하지 못했습니다.':'교육 일정 관리 권한이 없는 계정입니다.';return;}
+   if(owner.data && window.renderInstructorWorkflows){
+     const workflows=node('details');
+     workflows.className='edu-panel';
+     workflows.append(node('summary','수료 강사 프로필과 공식 강사 지원 검토'));
+     workflows.addEventListener('toggle',()=>{
+       if(workflows.open && workflows.children.length===1)window.renderInstructorWorkflows(db,workflows);
+     });
+     root.append(workflows);
+   }
    const editor=panel(),list=node('div');root.append(editor,list);
    function edit(event={}){
      editor.replaceChildren(node('h2',event.id?'일정 수정':'새 교육 일정'));const form=node('form');form.className='edu-form';editor.append(form);
